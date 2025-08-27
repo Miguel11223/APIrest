@@ -17,3 +17,6 @@ REST, o Transferencia de Estado Representacional, es un estilo arquitectónico p
   - **Métodos HTTP**: Utiliza métodos estándar (GET para obtener, POST para crear, PUT para actualizar, DELETE para eliminar).
   - **Formato de datos**: Comúnmente usa JSON o XML para el intercambio de datos.
   - **Escalabilidad**: Su diseño simple facilita la escalabilidad y el mantenimiento.
+
+## APIRest 
+Es una interfaz de programación de aplicaciones (API) que se ajusta a los principios de diseño del estilo arquitectónico de transferencia de estado representacional (REST), un estilo utilizado para conectar sistemas de hipermedia distribuidos.
