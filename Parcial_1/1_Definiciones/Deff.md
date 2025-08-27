@@ -1,7 +1,7 @@
 # Definiciones de API y REST
 
 ## API (Interfaz de Programación de Aplicaciones)
-Una API, o Interfaz de Programación de Aplicaciones, es un conjunto de reglas, herramientas y protocolos que permite que diferentes sistemas o aplicaciones se comuniquen entre sí. Actúa como un intermediario que facilita el intercambio de datos o funcionalidades entre dos o más programas, permitiendo que una aplicación solicite servicios o información de otra de manera estandarizada y segura.
+Una API es un conjunto de reglas, herramientas y protocolos que permite que diferentes sistemas o aplicaciones se comuniquen entre sí. Actúa como un intermediario que facilita el intercambio de datos o funcionalidades entre dos o más programas, permitiendo que una aplicación solicite servicios o información de otra de manera estandarizada y segura.
 
 - **Características principales**:
   - Proporciona una interfaz estructurada para acceder a funciones o datos de un sistema.
