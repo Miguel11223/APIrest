@@ -21,12 +21,12 @@ app.post('/', (req, res) => {
     if (!newMessage) {
       return res.status(400).send('El campo "message" es requerido');
     }
-    data.message = newMessage; // Actualiza el mensaje en la "base de datos"
+    data.message = newMessage; 
     res.send(`Mensaje actualizado: ${newMessage}`);
   });
 
   app.delete('/', (req, res) => {
-    data.message = ''; // Simula la eliminación del mensaje
+    data.message = ''; 
     res.send('Mensaje eliminado');
   });
 
