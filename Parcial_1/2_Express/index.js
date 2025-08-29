@@ -4,6 +4,24 @@ const port = 3000
 
 app.use(express.json());
 
+
+const logRequest = (req, res, next) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+  next();
+};
+
+const checkApiKey = (req, res, next) => {
+  const apiKey = req.headers['Contrasena'];
+  if (!apiKey || apiKey !== 'desbloqueado') {
+    return res.status(401).send('Acceso no autorizado: se requiere una clave API válida');
+  }
+  next();
+};
+
+app.use(logRequest);
+app.use(checkApiKey);
+
+
 let data = {
   message: 'Hello World(AAgregar una funcion middleware)'
 };
