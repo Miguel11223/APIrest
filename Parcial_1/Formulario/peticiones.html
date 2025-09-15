@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Veterinaria Kuchau - Gestión de Mascotas</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            color: #333;
+        }
+        .header {
+            background-color: #2e7d32; /* Verde oscuro */
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-bottom: 5px solid #6d4c41; /* Marrón para un toque cálido */
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 2.5em;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        }
+        .form-section, .grid-section {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            border-left: 5px solid #2e7d32;
+        }
+        .form-section h2, .grid-section h2 {
+            color: #6d4c41; /* Marrón oscuro */
+            font-weight: bold;
+            border-bottom: 2px solid #2e7d32;
+            padding-bottom: 10px;
+        }
+        .card {
+            background-color: #fff3e0; /* Beige cálido */
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-bottom: 15px;
+        }
+        .card:hover {
+            transform: scale(1.03);
+            box-shadow: 0 6px 20px rgba(46, 125, 50, 0.2);
+        }
+        .card img {
+            max-width: 100%;
+            border-radius: 5px 5px 0 0;
+            height: 200px;
+            object-fit: cover;
+        }
+        .card-body h5 {
+            color: #6d4c41;
+            font-size: 1.25em;
+        }
+        .card-body p {
+            color: #555;
+        }
+        .btn-primary {
+            background-color: #2e7d32;
+            border-color: #2e7d32;
+        }
+        .btn-primary:hover {
+            background-color: #1b5e20;
+            border-color: #1b5e20;
+        }
+        .btn-danger {
+            background-color: #d32f2f;
+            border-color: #d32f2f;
+        }
+        .btn-danger:hover {
+            background-color: #b71c1c;
+            border-color: #b71c1c;
+        }
+        #errorMessage, #formErrorMessage {
+            display: none;
+            color: #d32f2f;
+            text-align: center;
+            margin-top: 10px;
+        }
+        @media (max-width: 768px) {
+            .form-group {
+                margin-bottom: 10px;
+            }
+            .card {
+                margin-bottom: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Veterinaria Kuchau</h1>
+        <p class="lead">Cuidamos a tus mejores amigos con amor y profesionalismo</p>
+    </div>
+    <div class="container mt-4">
+        <div class="form-section">
+            <h2>Registro</h2>
+            <form id="mascotaForm" enctype="multipart/form-data">
+                <!-- Cliente -->
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="cliente_nombre" class="form-label">Nombre del Cliente:</label>
+                        <input type="text" class="form-control" id="cliente_nombre" name="cliente_nombre" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="cliente_apellido" class="form-label">Apellido del Cliente:</label>
+                        <input type="text" class="form-control" id="cliente_apellido" name="cliente_apellido" required>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="cliente_telefono" class="form-label">Teléfono del Cliente:</label>
+                        <input type="tel" class="form-control" id="cliente_telefono" name="cliente_telefono" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="cliente_email" class="form-label">Email del Cliente (opcional):</label>
+                        <input type="email" class="form-control" id="cliente_email" name="cliente_email">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12 mb-3">
+                        <label for="cliente_direccion" class="form-label">Dirección (opcional):</label>
+                        <input type="text" class="form-control" id="cliente_direccion" name="cliente_direccion">
+                    </div>
+                </div>
+
+                <!-- Mascota -->
+                <h3 class="mt-4">Datos de la Mascota</h3>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="mascota_nombre" class="form-label">Nombre de la Mascota:</label>
+                        <input type="text" class="form-control" id="mascota_nombre" name="mascota_nombre" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="mascota_especie" class="form-label">Especie:</label>
+                        <input type="text" class="form-control" id="mascota_especie" name="mascota_especie" required>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="mascota_raza" class="form-label">Raza (opcional):</label>
+                        <input type="text" class="form-control" id="mascota_raza" name="mascota_raza">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="mascota_peso" class="form-label">Peso (kg, opcional):</label>
+                        <input type="number" step="0.1" class="form-control" id="mascota_peso" name="mascota_peso">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="mascota_sexo" class="form-label">Sexo (M/H, opcional):</label>
+                        <select class="form-control" id="mascota_sexo" name="mascota_sexo">
+                            <option value="">Seleccione</option>
+                            <option value="M">Macho</option>
+                            <option value="H">Hembra</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="mascota_esterilizado" class="form-label">Esterilizado (0/1, opcional):</label>
+                        <select class="form-control" id="mascota_esterilizado" name="mascota_esterilizado">
+                            <option value="">Seleccione</option>
+                            <option value="1">Sí</option>
+                            <option value="0">No</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="mascota_imagen" class="form-label">Imagen de la Mascota:</label>
+                        <input type="file" class="form-control" id="mascota_imagen" name="mascota_imagen" accept="image/*" required>
+                    </div>
+                </div>
+
+                <!-- Vacuna y Tratamiento -->
+                <h3 class="mt-4">Detalles Médicos</h3>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="vacuna_nombre" class="form-label">Nombre de la Vacuna (opcional):</label>
+                        <input type="text" class="form-control" id="vacuna_nombre" name="vacuna_nombre">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="tratamiento_nombre" class="form-label">Nombre del Tratamiento (opcional):</label>
+                        <input type="text" class="form-control" id="tratamiento_nombre" name="tratamiento_nombre">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="tratamiento_costo" class="form-label">Costo del Tratamiento (opcional):</label>
+                        <input type="number" step="0.01" class="form-control" id="tratamiento_costo" name="tratamiento_costo">
+                    </div>
+                </div>
+
+                <!-- Consulta -->
+                <h3 class="mt-4">Datos de la Consulta</h3>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="consulta_diagnostico" class="form-label">Diagnóstico (opcional):</label>
+                        <input type="text" class="form-control" id="consulta_diagnostico" name="consulta_diagnostico">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="consulta_observaciones" class="form-label">Observaciones (opcional):</label>
+                        <input type="text" class="form-control" id="consulta_observaciones" name="consulta_observaciones">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="consulta_fecha_consulta" class="form-label">Fecha de Consulta (opcional):</label>
+                        <input type="date" class="form-control" id="consulta_fecha_consulta" name="consulta_fecha_consulta">
+                    </div>
+                </div>
+
+                <!-- Factura -->
+                <h3 class="mt-4">Datos de la Factura</h3>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="factura_empleado_nombre" class="form-label">Nombre del Empleado:</label>
+                        <input type="text" class="form-control" id="factura_empleado_nombre" name="factura_empleado_nombre" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="factura_empleado_apellido" class="form-label">Apellido del Empleado:</label>
+                        <input type="text" class="form-control" id="factura_empleado_apellido" name="factura_empleado_apellido" required>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="factura_subtotal" class="form-label">Subtotal (opcional):</label>
+                        <input type="number" step="0.01" class="form-control" id="factura_subtotal" name="factura_subtotal">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="factura_impuestos" class="form-label">Impuestos (opcional):</label>
+                        <input type="number" step="0.01" class="form-control" id="factura_impuestos" name="factura_impuestos">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="factura_total" class="form-label">Total (opcional):</label>
+                        <input type="number" step="0.01" class="form-control" id="factura_total" name="factura_total">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="factura_estado" class="form-label">Estado (opcional):</label>
+                        <input type="text" class="form-control" id="factura_estado" name="factura_estado">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="factura_metodo_pago" class="form-label">Método de Pago (opcional):</label>
+                        <input type="text" class="form-control" id="factura_metodo_pago" name="factura_metodo_pago">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="factura_fecha_emision" class="form-label">Fecha de Emisión (opcional):</label>
+                        <input type="date" class="form-control" id="factura_fecha_emision" name="factura_fecha_emision">
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Guardar Mascota y Detalles</button>
+            </form>
+            <p id="formErrorMessage"></p>
+        </div>
+        <div class="grid-section">
+            <h2>Lista de Mascotas</h2>
+            <div id="mascotasGrid" class="row row-cols-1 row-cols-md-3 g-4"></div>
+            <p id="errorMessage"></p>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS and Popper.js -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Definir la URL base del servidor
+        const BASE_URL = 'http://localhost:8082';
+
+        document.getElementById('mascotaForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const formErrorMessage = document.getElementById('formErrorMessage');
+
+            // Resetear mensaje de error
+            formErrorMessage.style.display = 'none';
+            formErrorMessage.textContent = '';
+
+            try {
+                // Verificar si se seleccionó un archivo de imagen
+                const imagenInput = document.getElementById('mascota_imagen');
+                if (!imagenInput.files || imagenInput.files.length === 0) {
+                    throw new Error('Por favor, selecciona una imagen para la mascota.');
+                }
+
+                // Depuración: Mostrar los datos del empleado que se están enviando
+                const empleadoNombre = formData.get('factura_empleado_nombre');
+                const empleadoApellido = formData.get('factura_empleado_apellido');
+                if (!empleadoNombre || !empleadoApellido) {
+                    throw new Error('El nombre y apellido del empleado son obligatorios.');
+                }
+                console.log(`Datos del empleado enviados al guardar: ${empleadoNombre} ${empleadoApellido}`);
+
+                const response = await fetch(`${BASE_URL}/mascota`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Error en la respuesta del servidor: ${response.status} ${response.statusText}`);
+                }
+
+                const result = await response.json();
+                if (result.mensaje) {
+                    alert(result.mensaje);
+                    await loadMascotas();
+                    e.target.reset();
+                } else if (result.error) {
+                    throw new Error(result.error + (result.details ? ' - ' + result.details : ''));
+                } else if (result.errores) {
+                    // Mostrar errores de validación
+                    const errores = result.errores.map(err => err.msg).join(', ');
+                    throw new Error('Errores de validación: ' + errores);
+                }
+            } catch (error) {
+                console.error('Error al guardar la mascota:', error.message);
+                formErrorMessage.style.display = 'block';
+                formErrorMessage.textContent = 'Error: ' + error.message;
+            }
+        });
+
+        async function loadMascotas() {
+            const grid = document.getElementById('mascotasGrid');
+            const errorMessage = document.getElementById('errorMessage');
+            grid.innerHTML = '';
+            errorMessage.style.display = 'none';
+            errorMessage.textContent = '';
+
+            try {
+                const response = await fetch(`${BASE_URL}/mascotas`);
+                if (!response.ok) {
+                    throw new Error(`Error en la respuesta del servidor: ${response.status} ${response.statusText}`);
+                }
+                const mascotas = await response.json();
+
+                if (!Array.isArray(mascotas)) {
+                    throw new Error('Los datos devueltos no son un arreglo.');
+                }
+
+                if (mascotas.length === 0) {
+                    errorMessage.style.display = 'block';
+                    errorMessage.textContent = 'No hay mascotas registradas.';
+                    return;
+                }
+
+                mascotas.forEach(mascota => {
+                    const card = document.createElement('div');
+                    card.className = 'col';
+                    card.innerHTML = `
+                        <div class="card h-100">
+                            <img src="${mascota.imagen_path || 'https://via.placeholder.com/200'}" class="card-img-top" alt="${mascota.mascota_nombre}">
+                            <div class="card-body">
+                                <h5 class="card-title">${mascota.mascota_nombre}</h5>
+                                <p class="card-text">Especie: ${mascota.mascota_especie}</p>
+                                <p class="card-text">Raza: ${mascota.mascota_raza || 'No especificada'}</p>
+                                <p class="card-text">Dueño: ${mascota.cliente_nombre} ${mascota.cliente_apellido}</p>
+                                <button class="btn btn-primary mt-2" onclick="generatePDF(${mascota.mascota_id})">Generar PDF</button>
+                                <button class="btn btn-danger mt-2" onclick="deleteMascota(${mascota.mascota_id})">Eliminar</button>
+                            </div>
+                        </div>
+                    `;
+                    grid.appendChild(card);
+                });
+            } catch (error) {
+                console.error('Error al cargar las mascotas:', error.message);
+                errorMessage.style.display = 'block';
+                errorMessage.textContent = 'Error: ' + error.message;
+            }
+        }
+
+        async function deleteMascota(mascotaId) {
+            if (confirm('¿Estás seguro de eliminar esta mascota?')) {
+                try {
+                    const response = await fetch(`${BASE_URL}/mascota/eliminar?mascota_id=${mascotaId}`, { method: 'DELETE' });
+                    if (!response.ok) {
+                        throw new Error(`Error en la respuesta del servidor: ${response.status} ${response.statusText}`);
+                    }
+                    const result = await response.json();
+                    if (result.mensaje) {
+                        alert(result.mensaje);
+                        await loadMascotas();
+                    } else if (result.error) {
+                        throw new Error(result.error + (result.details ? ' - ' + result.details : ''));
+                    }
+                } catch (error) {
+                    console.error('Error al eliminar la mascota:', error.message);
+                    alert('Error: ' + error.message);
+                }
+            }
+        }
+
+        async function generatePDF(mascotaId) {
+            try {
+                window.open(`${BASE_URL}/consulta-pdf?mascota_id=${mascotaId}`, '_blank');
+            } catch (error) {
+                console.error('Error al generar el PDF:', error.message);
+                alert('Error: ' + error.message);
+            }
+        }
+
+        window.onload = loadMascotas;
+    </script>
+</body>
+</html>

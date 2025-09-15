@@ -11,8 +11,8 @@ const logRequest = (req, res, next) => {
 };
 
 const checkApiKey = (req, res, next) => {
-  const apiKey = req.headers['Contrasena'];
-  if (!apiKey || apiKey !== 'desbloqueado') {
+  const apiKey = req.headers['x-api-key'];
+  if (!apiKey || apiKey !== 'mi-clave-secreta') {
     return res.status(401).send('Acceso no autorizado: se requiere una clave API válida');
   }
   next();

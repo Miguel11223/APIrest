@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Peticiones CORS</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .section {
+            margin-bottom: 20px;
+        }
+        input, button {
+            margin: 5px;
+            padding: 5px;
+        }
+        .clientes-list, .proveedores-list {
+            margin-top: 10px;
+        }
+        .item {
+            display: flex;
+            align-items: center;
+            margin: 5px 0;
+        }
+        .item img {
+            max-width: 50px;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="section">
+        <h2>Clientes</h2>
+        <div>
+            <input type="text" id="clienteNombre" placeholder="Nombre del cliente">
+            <input type="file" id="clienteImagen" accept="image/*">
+            <button onclick="addCliente()">Agregar Cliente</button>
+            <button onclick="getClientes()">Listar Clientes</button>
+        </div>
+        <div class="clientes-list" id="clientesList"></div>
+    </div>
+
+    <div class="section">
+        <h2>Proveedores</h2>
+        <div>
+            <input type="text" id="proveedorNombre" placeholder="Nombre del proveedor">
+            <input type="file" id="proveedorImagen" accept="image/*">
+            <button onclick="addProveedor()">Agregar Proveedor</button>
+            <button onclick="getProveedores()">Listar Proveedores</button>
+        </div>
+        <div class="proveedores-list" id="proveedoresList"></div>
+    </div>
+
+    <script>
+
+const BASE_URL = 'http://localhost:3000';
+        // Clientes
+        async function getClientes() {
+            try {
+                const response = await fetch('http://localhost:3000/clientes');
+                const data = await response.json();
+                const clientesList = document.getElementById('clientesList');
+                clientesList.innerHTML = '';
+                data.forEach(cliente => {
+                    const div = document.createElement('div');
+                    div.className = 'item';
+                    div.innerHTML = `
+                        ${cliente.profileImage ? `<img src="${cliente.profileImage}" alt="Profile Image">` : ''}
+                        ID: ${cliente.id} - Nombre: ${cliente.nombre}
+                        <button onclick="deleteCliente(${cliente.id})">Eliminar</button>
+                    `;
+                    clientesList.appendChild(div);
+                });
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al obtener clientes');
+            }
+        }
+
+        async function addCliente() {
+            const nombre = document.getElementById('clienteNombre').value;
+            const imagen = document.getElementById('clienteImagen').files[0];
+            if (!nombre) {
+                alert('Por favor, ingrese un nombre');
+                return;
+            }
+            const formData = new FormData();
+            formData.append('nombre', nombre);
+            if (imagen) formData.append('profileImage', imagen);
+            try {
+                const response = await fetch('http://localhost:3000/clientes', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+                alert(data.message);
+                document.getElementById('clienteNombre').value = '';
+                document.getElementById('clienteImagen').value = '';
+                getClientes();
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al agregar cliente');
+            }
+        }
+
+        async function deleteCliente(id) {
+            try {
+                const response = await fetch(`http://localhost:3000/clientes/${id}`, {
+                    method: 'DELETE'
+                });
+                const data = await response.json();
+                alert(data.message);
+                getClientes();
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al eliminar cliente');
+            }
+        }
+
+        // Proveedores
+        async function getProveedores() {
+            try {
+                const response = await fetch('http://localhost:3000/proveedores');
+                const data = await response.json();
+                const proveedoresList = document.getElementById('proveedoresList');
+                proveedoresList.innerHTML = '';
+                data.forEach(proveedor => {
+                    const div = document.createElement('div');
+                    div.className = 'item';
+                    div.innerHTML = `
+                        ${proveedor.profileImage ? `<img src="${proveedor.profileImage}" alt="Profile Image">` : ''}
+                        ID: ${proveedor.id} - Nombre: ${proveedor.nombre}
+                        <button onclick="deleteProveedor(${proveedor.id})">Eliminar</button>
+                    `;
+                    proveedoresList.appendChild(div);
+                });
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al obtener proveedores');
+            }
+        }
+
+        async function addProveedor() {
+            const nombre = document.getElementById('proveedorNombre').value;
+            const imagen = document.getElementById('proveedorImagen').files[0];
+            if (!nombre) {
+                alert('Por favor, ingrese un nombre');
+                return;
+            }
+            const formData = new FormData();
+            formData.append('nombre', nombre);
+            if (imagen) formData.append('profileImage', imagen);
+            try {
+                const response = await fetch('http://localhost:3000/proveedores', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+                alert(data.message);
+                document.getElementById('proveedorNombre').value = '';
+                document.getElementById('proveedorImagen').value = '';
+                getProveedores();
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al agregar proveedor');
+            }
+        }
+
+        async function deleteProveedor(id) {
+            try {
+                const response = await fetch(`http://localhost:3000/proveedores/${id}`, {
+                    method: 'DELETE'
+                });
+                const data = await response.json();
+                alert(data.message);
+                getProveedores();
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al eliminar proveedor');
+            }
+        }
+
+
+        async function generatePDF(mascotaId) {
+            try {
+                // Hacer una solicitud previa para obtener los datos del PDF como JSON (para depuración)
+                const response = await fetch(`${BASE_URL}/consulta-pdf?mascota_id=${mascotaId}`);
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`Error al generar el PDF: ${response.status} ${response.statusText}. Detalles: ${errorText}`);
+                }
+
+                // Abrir el PDF en una nueva pestaña
+                window.open(`${BASE_URL}/consulta-pdf?mascota_id=${mascotaId}`, '_blank');
+            } catch (error) {
+                console.error('Error al generar el PDF:', error.message);
+                alert('Error: ' + error.message);
+            }
+        }
+    </script>
+</body>
+</html>

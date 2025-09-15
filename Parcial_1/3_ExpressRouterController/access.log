@@ -1,0 +1,8 @@
+[0mGET /proveedor [32m200[0m 5.974 ms - 21[0m
+[0mPOST /clientes [32m201[0m 66.610 ms - 141[0m
+[0mGET /clientes [32m200[0m 2.660 ms - 95[0m
+[0mGET /clientes [36m304[0m 0.556 ms - -[0m
+[0mPOST /proveedores [32m201[0m 27.565 ms - 143[0m
+[0mGET /proveedores [32m200[0m 0.966 ms - 94[0m
+[0mGET /proveedores [36m304[0m 0.490 ms - -[0m
+[0mGET /clientes [36m304[0m 0.745 ms - -[0m

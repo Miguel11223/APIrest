@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Peticiones Cors</title>
+</head>
+<body>   
+    <form method="GET" action="http://localhost:3000/proveedor">
+        <button id="btn" type="submit">Peticiones</button>
+    </form>
+    
+    <script>
+        document.getElementById('btn').addEventListener('click', (event) => {
+            event.preventDefault(); // Evita que el formulario se envíe y recargue la página
+            
+            fetch('http://localhost:3000/proveedor')
+                .then(response => response.text())
+                .then(data => {
+                    console.log(data);
+                    alert('Solicitud exitosa: ' + data); // Mensaje en caso de éxito
+                })
+                .catch(error => {
+                    console.error('Error en el fetch:', error);
+                    alert('La solicitud fue bloqueada por CORS');
+                });
+        });
+    </script>
+</body>
+</html>
