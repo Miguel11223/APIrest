@@ -3,8 +3,8 @@ const cors = require('cors');
 const morgan = require('morgan');
 const fs = require('fs');
 const path = require('path');
-const clientesRouter = require('./routes/clientes');
-const mascotasRouter = require('./routes/mascotas');
+const clientesRouter = require('./rutas/clientes');
+const mascotasRouter = require('./rutas/mascotas');
 
 const app = express();
 const port = process.env.PORT || 8082;

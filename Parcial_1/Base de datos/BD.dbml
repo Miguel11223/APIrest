@@ -1,0 +1,25 @@
+Table Alumno {
+  id_alumno integer [primary key]
+  nombre varchar(100) [not null]
+  apellido varchar(100) [not null]
+  email varchar(100) [unique]
+  matricula varchar(20) [unique]
+  created_at timestamp [default: `now()`]
+}
+
+Table Inventario {
+  id_item integer [primary key]
+  nombre_item varchar(100) [not null]
+  descripcion text
+  cantidad_disponible integer [not null]
+  created_at timestamp [default: `now()`]
+}
+
+Table Prestamos {
+  id_prestamo integer [primary key]
+  id_alumno integer [ref: > Alumno.id_alumno]
+  id_item integer [ref: > Inventario.id_item]
+  fecha_prestamo timestamp [not null, default: `now()`]
+  fecha_devolucion timestamp
+  estado varchar(20) [not null, default: 'activo']
+}
