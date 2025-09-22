@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const mascotasController = require('../controllers/mascotasController');
+const mascotasController = require('../Controladores/mascotasController');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
