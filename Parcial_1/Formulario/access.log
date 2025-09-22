@@ -22,3 +22,16 @@
 [0mGET /favicon.ico [33m404[0m 2.641 ms - 150[0m
 [0mGET /mascotas [36m304[0m 13.242 ms - -[0m
 [0mGET /mascotas [36m304[0m 11.346 ms - -[0m
+[0mGET /mascotas [36m304[0m 12.301 ms - -[0m
+[0mGET /mascotas [36m304[0m 9.933 ms - -[0m
+[0mGET /mascotas [36m304[0m 9.747 ms - -[0m
+[0mGET /mascotas [36m304[0m 11.922 ms - -[0m
+[0mGET /mascotas [36m304[0m 12.186 ms - -[0m
+[0mGET /mascotas [36m304[0m 12.003 ms - -[0m
+[0mGET /mascotas [36m304[0m 14.073 ms - -[0m
+[0mGET /mascotas [36m304[0m 13.072 ms - -[0m
+[0mGET /mascotas [36m304[0m 13.711 ms - -[0m
+[0mGET /consulta-pdf?mascota_id=6 [32m200[0m 18.564 ms - 6369[0m
+[0mGET /mascotas [36m304[0m 16.342 ms - -[0m
+[0mGET /mascotas [36m304[0m 11.087 ms - -[0m
+[0mGET /mascotas [36m304[0m 13.063 ms - -[0m
