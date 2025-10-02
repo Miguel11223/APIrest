@@ -1,62 +1,48 @@
 const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
-const multer = require('multer');
 const fs = require('fs');
 const path = require('path');
-const clientesRouter = require('./rutas/clientes');
-const mascotasController = require('./Controladores/mascotasController');
 
 const app = express();
 const port = process.env.PORT || 8082;
 
 const accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'), { flags: 'a' });
 
-// Multer 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const folder = path.join(__dirname, 'archivos');
-    if (!fs.existsSync(folder)) fs.mkdirSync(folder);
-    cb(null, folder);
-  },
-  filename: (req, file, cb) => {
-    cb(null, `${Date.now()}-${file.originalname}`);
-  }
-});
-
-const upload = multer({
-  storage,
-  fileFilter: (req, file, cb) => {
-    const allowedTypes = /jpeg|jpg|png/;
-    const mimeType = allowedTypes.test(file.mimetype);
-    const extName = allowedTypes.test(path.extname(file.originalname).toLowerCase());
-    if (mimeType && extName) {
-      return cb(null, true);
-    }
-    cb(new Error('Solo se permiten archivos de imagen (jpeg, jpg, png).'));
-  },
-  limits: { fileSize: 5 * 1024 * 1024 }
-});
-
-
-
-
-// Middleware
-app.use(cors());
+// Middleware 
+app.use(cors({
+  origin: true,  
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan('dev', { stream: accessLogStream }));
-app.use('/archivos', express.static(path.join(__dirname, 'archivos')));
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Rutas de clientes
-app.use('/clientes', clientesRouter.router);
+//rutas 
+try {
+  const alumnosRouter = require('./rutas/alumnos');
+  const inventarioRouter = require('./rutas/inventario');
+  const prestamosRouter = require('./rutas/prestamos');
+  app.use('/alumnos', alumnosRouter.router);
+  app.use('/inventario', inventarioRouter.router);
+  app.use('/prestamos', prestamosRouter.router);
+  console.log('Rutas montadas correctamente');
+} catch (err) {
+  console.error('Error al cargar rutas:', err.message);
+}
 
-// Rutas
-app.get('/mascotas', mascotasController.getAll);
-app.post('/mascota', upload.single('mascota_imagen'), mascotasController.add);
-app.delete('/mascota/eliminar', mascotasController.delete);
-app.get('/consulta-pdf', mascotasController.generatePDF);
+// Ruta del servidor 
+app.get('/test', (req, res) => {
+  res.json({ message: 'Servidor funcionando en puerto ' + port });
+});
+
+
+app.use((err,req,res,next)=>
+{
+  res.status(500).send({error:err.message});
+})
 
 app.listen(port, () => {
   console.log(`Servidor corriendo en http://localhost:${port}`);

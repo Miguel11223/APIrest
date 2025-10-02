@@ -3,7 +3,9 @@ Table Alumno {
   nombre varchar(100) [not null]
   apellido varchar(100) [not null]
   email varchar(100) [unique]
-  matricula varchar(20) [unique]
+  semestre varchar(100) [not null]
+  num_control varchar(20) [unique]
+  carrera varchar(100)[not null]
   created_at timestamp [default: `now()`]
 }
 
