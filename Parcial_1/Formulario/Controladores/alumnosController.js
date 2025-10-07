@@ -1,6 +1,9 @@
 const mysql = require('mysql2/promise');
 const { check, validationResult } = require('express-validator');
 
+// Import error handler
+const { sendErrorResponse, logError } = require('../ManejadorErrores/ManErrores');
+
 const db = mysql.createPool({
   host: 'localhost',
   user: 'root',
@@ -18,7 +21,8 @@ const db = mysql.createPool({
     console.log('Conexión exitosa a la base de datos Escuela (Alumnos).');
     connection.release();
   } catch (err) {
-    console.error('Error al conectar a la base de datos:', err.message);
+    logError('Error al conectar a la base de datos (Alumnos):', err);
+    process.exit(1);
   }
 })();
 
@@ -33,8 +37,8 @@ const alumnosController = {
       console.log('Alumnos obtenidos:', results.length);
       res.status(200).json(results);
     } catch (err) {
-      console.error('Error al obtener alumnos:', err.message);
-      res.status(500).json({ error: 'Error al obtener alumnos.', details: err.message });
+      logError('Error al obtener alumnos:', err);
+      sendErrorResponse(res, 500, 'Error al obtener alumnos.', err.message);
     }
   },
 
@@ -43,7 +47,7 @@ const alumnosController = {
     async (req, res) => {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
-        return res.status(400).json({ errores: errors.array() });
+        return sendErrorResponse(res, 400, 'Errores de validación', errors.array());
       }
 
       const { num_control } = req.body;
@@ -65,8 +69,8 @@ const alumnosController = {
         res.status(201).json({ mensaje: `Alumno con número de control ${num_control} procesado`, id_alumno });
       } catch (error) {
         await connection.rollback();
-        console.error('Error al procesar alumno:', error.message);
-        res.status(500).json({ error: 'Error al procesar alumno.', details: error.message });
+        logError('Error al procesar alumno:', error);
+        sendErrorResponse(res, 500, 'Error al procesar alumno.', error.message);
       } finally {
         connection.release();
       }
@@ -78,7 +82,7 @@ const alumnosController = {
     async (req, res) => {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
-        return res.status(400).json({ errores: errors.array() });
+        return sendErrorResponse(res, 400, 'Errores de validación', errors.array());
       }
 
       const { id } = req.params;
@@ -97,8 +101,8 @@ const alumnosController = {
         res.status(200).json({ mensaje: `Alumno con ID ${id} actualizado` });
       } catch (error) {
         await connection.rollback();
-        console.error('Error al actualizar alumno:', error.message);
-        res.status(500).json({ error: 'Error al actualizar alumno.', details: error.message });
+        logError('Error al actualizar alumno:', error);
+        sendErrorResponse(res, 500, 'Error al actualizar alumno.', error.message);
       } finally {
         connection.release();
       }
@@ -118,8 +122,8 @@ const alumnosController = {
       res.status(200).json({ mensaje: `Alumno con ID ${id} eliminado` });
     } catch (error) {
       await connection.rollback();
-      console.error('Error al eliminar alumno:', error.message);
-      res.status(500).json({ error: 'Error al eliminar alumno.', details: error.message });
+      logError('Error al eliminar alumno:', error);
+      sendErrorResponse(res, 500, 'Error al eliminar alumno.', error.message);
     } finally {
       connection.release();
     }

@@ -1,8 +1,8 @@
-
 const mysql = require('mysql2/promise');
 const { check, validationResult } = require('express-validator');
-const fs = require('fs');
-const path = require('path');
+
+// Import error handler
+const { sendErrorResponse, logError } = require('../ManejadorErrores/ManErrores');
 
 const db = mysql.createPool({
   host: 'localhost',
@@ -18,192 +18,110 @@ const db = mysql.createPool({
 (async () => {
   try {
     const connection = await db.getConnection();
-    console.log('Conexión exitosa a la base de datos Escuela (Prestamos).');
+    console.log('Conexión exitosa a la base de datos Escuela (Inventario).');
     connection.release();
   } catch (err) {
-    console.error('Error al conectar a la base de datos:', err.message);
+    logError('Error al conectar a la base de datos (Inventario):', err);
     process.exit(1);
   }
 })();
 
-const validatePrestamo = [
-  check('id_alumno').isInt().withMessage('El ID del alumno debe ser un número entero.'),
-  check('id_item').isInt().withMessage('El ID del item debe ser un número entero.'),
-  check('estado').optional().isIn(['activo', 'devuelto']).withMessage('El estado debe ser "activo" o "devuelto".')
+const validateItem = [
+  check('nombre_item').notEmpty().withMessage('El nombre del item es obligatorio.'),
+  check('cantidad_disponible').isInt({ min: 0 }).withMessage('La cantidad debe ser un número no negativo.')
 ];
 
-const prestamosController = {
+const inventarioController = {
   getAll: async (req, res) => {
-    const { num_control } = req.query;
-    let query = `
-      SELECT p.id_prestamo, p.fecha_prestamo, p.fecha_devolucion, p.estado, 
-             a.num_control, i.nombre_item
-      FROM Prestamos p
-      JOIN Alumno a ON p.id_alumno = a.id_alumno
-      JOIN Inventario i ON p.id_item = i.id_item
-    `;
-    const params = [];
-    if (num_control) {
-      query += ' WHERE a.num_control = ?';
-      params.push(num_control);
-    }
     try {
-      const [results] = await db.query(query, params);
-      console.log('Préstamos obtenidos:', results.length);
+      const [results] = await db.query('SELECT id_item, nombre_item, cantidad_disponible FROM Inventario');
+      console.log('Items obtenidos:', results.length);
       res.status(200).json(results);
     } catch (err) {
-      console.error('Error al obtener préstamos:', err.message);
-      res.status(500).json({ error: 'Error al obtener préstamos.', details: err.message });
+      logError('Error al obtener inventario:', err);
+      sendErrorResponse(res, 500, 'Error al obtener inventario.', err.message);
     }
   },
 
   add: [
-    validatePrestamo,
+    validateItem,
     async (req, res) => {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
-        return res.status(400).json({ errores: errors.array() });
+        return sendErrorResponse(res, 400, 'Errores de validación', errors.array());
       }
 
-      const { id_alumno, id_item } = req.body;
+      const { nombre_item, descripcion, cantidad_disponible } = req.body;
       const connection = await db.getConnection();
       try {
         await connection.beginTransaction();
-
-        // Verificar si el alumno existe
-        const [alumno] = await connection.query('SELECT id_alumno FROM Alumno WHERE id_alumno = ?', [id_alumno]);
-        if (alumno.length === 0) {
-          throw new Error('Alumno no encontrado.');
-        }
-
-        // Verificar si el item está disponible
-        const [item] = await connection.query('SELECT cantidad_disponible FROM Inventario WHERE id_item = ?', [id_item]);
-        if (item.length === 0 || item[0].cantidad_disponible <= 0) {
-          throw new Error('Item no disponible.');
-        }
-
-        // Crear préstamo
         const [result] = await connection.query(
-          'INSERT INTO Prestamos (id_alumno, id_item) VALUES (?, ?)',
-          [id_alumno, id_item]
+          'INSERT INTO Inventario (nombre_item, descripcion, cantidad_disponible) VALUES (?, ?, ?)',
+          [nombre_item, descripcion || null, cantidad_disponible]
         );
-
-        // Reducir cantidad disponible
-        await connection.query('UPDATE Inventario SET cantidad_disponible = cantidad_disponible - 1 WHERE id_item = ?', [id_item]);
-
         await connection.commit();
-        res.status(201).json({ mensaje: 'Préstamo registrado correctamente.', id_prestamo: result.insertId });
+        res.status(201).json({ mensaje: `Item ${nombre_item} agregado`, id_item: result.insertId });
       } catch (error) {
         await connection.rollback();
-        console.error('Error al registrar préstamo:', error.message);
-        res.status(500).json({ error: 'Error al registrar préstamo.', details: error.message });
+        logError('Error al agregar item:', error);
+        sendErrorResponse(res, 500, 'Error al agregar item.', error.message);
       } finally {
         connection.release();
       }
     }
   ],
 
-  returnItem: async (req, res) => {
-    const { id_prestamo } = req.params;
+  update: [
+    validateItem,
+    async (req, res) => {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return sendErrorResponse(res, 400, 'Errores de validación', errors.array());
+      }
+
+      const { id } = req.params;
+      const { nombre_item, descripcion, cantidad_disponible } = req.body;
+      const connection = await db.getConnection();
+      try {
+        await connection.beginTransaction();
+        const [result] = await connection.query(
+          'UPDATE Inventario SET nombre_item = ?, descripcion = ?, cantidad_disponible = ? WHERE id_item = ?',
+          [nombre_item, descripcion || null, cantidad_disponible, id]
+        );
+        if (result.affectedRows === 0) {
+          throw new Error('Item no encontrado.');
+        }
+        await connection.commit();
+        res.status(200).json({ mensaje: `Item con ID ${id} actualizado` });
+      } catch (error) {
+        await connection.rollback();
+        logError('Error al actualizar item:', error);
+        sendErrorResponse(res, 500, 'Error al actualizar item.', error.message);
+      } finally {
+        connection.release();
+      }
+    }
+  ],
+
+  delete: async (req, res) => {
+    const { id } = req.params;
     const connection = await db.getConnection();
     try {
       await connection.beginTransaction();
-
-      // Verificar préstamo
-      const [prestamo] = await connection.query('SELECT id_item, estado FROM Prestamos WHERE id_prestamo = ?', [id_prestamo]);
-      if (prestamo.length === 0) {
-        throw new Error('Préstamo no encontrado.');
+      const [result] = await connection.query('DELETE FROM Inventario WHERE id_item = ?', [id]);
+      if (result.affectedRows === 0) {
+        throw new Error('Item no encontrado.');
       }
-      if (prestamo[0].estado === 'devuelto') {
-        throw new Error('El préstamo ya fue devuelto.');
-      }
-
-      // Actualizar estado y fecha de devolución
-      await connection.query(
-        'UPDATE Prestamos SET estado = ?, fecha_devolucion = ? WHERE id_prestamo = ?',
-        ['devuelto', new Date().toISOString().slice(0, 19).replace('T', ' '), id_prestamo]
-      );
-
-      // Incrementar cantidad disponible
-      await connection.query('UPDATE Inventario SET cantidad_disponible = cantidad_disponible + 1 WHERE id_item = ?', [prestamo[0].id_item]);
-
       await connection.commit();
-      res.status(200).json({ mensaje: 'Item devuelto correctamente.' });
+      res.status(200).json({ mensaje: `Item con ID ${id} eliminado` });
     } catch (error) {
       await connection.rollback();
-      console.error('Error al devolver item:', error.message);
-      res.status(500).json({ error: 'Error al devolver item.', details: error.message });
+      logError('Error al eliminar item:', error);
+      sendErrorResponse(res, 500, 'Error al eliminar item.', error.message);
     } finally {
       connection.release();
-    }
-  },
-
-  generateReport: async (req, res) => {
-    const { id_prestamo } = req.query;
-    if (!id_prestamo) {
-      return res.status(400).json({ error: 'El parámetro id_prestamo es obligatorio.' });
-    }
-
-    try {
-      const [results] = await db.query(`
-        SELECT p.id_prestamo, p.fecha_prestamo, p.fecha_devolucion, p.estado,
-               a.num_control, i.nombre_item, i.descripcion
-        FROM Prestamos p
-        JOIN Alumno a ON p.id_alumno = a.id_alumno
-        JOIN Inventario i ON p.id_item = i.id_item
-        WHERE p.id_prestamo = ?
-      `, [id_prestamo]);
-
-      if (results.length === 0) {
-        return res.status(404).json({ error: 'Préstamo no encontrado.' });
-      }
-
-      const data = results[0];
-      const reportContent = `
-Reporte de Préstamo #${data.id_prestamo}
-----------------------------------------
-Número de Control del Alumno: ${data.num_control}
-Item Prestado: ${data.nombre_item}
-Descripción del Item: ${data.descripcion || 'Sin descripción'}
-Fecha de Préstamo: ${new Date(data.fecha_prestamo).toLocaleString()}
-Fecha de Devolución: ${data.fecha_devolucion ? new Date(data.fecha_devolucion).toLocaleString() : 'No devuelto'}
-Estado: ${data.estado}
-----------------------------------------
-Generado el: ${new Date().toLocaleString()}
-Escuela - Sistema de Préstamos
-`;
-
-      const reportFolder = path.join(__dirname, '..', 'reportes');
-      if (!fs.existsSync(reportFolder)) fs.mkdirSync(reportFolder, { recursive: true });
-      const reportPath = path.join(reportFolder, `prestamo-${data.id_prestamo}.txt`);
-      // fs.writeFileSync(reportPath, reportContent);
-      fs.writeFileSync(reportPath, reportContent, 'utf-8');
-
-
-      res.setHeader('Content-Disposition', `attachment; filename=prestamo-${data.id_prestamo}.txt`);
-      res.sendFile(reportPath, (err) => {
-        if (err) {
-          console.error('Error al enviar el reporte:', err.message);
-          return res.status(500).json({ error: 'Error al enviar el reporte.', details: err.message });
-        }
-        fs.unlink(reportPath, (unlinkErr) => {
-          if (unlinkErr) console.error('Error al eliminar el archivo de reporte:', unlinkErr.message);
-        });
-      });
-
-      // Handle delete request
-      if (req.query.delete) {
-        if (fs.existsSync(reportPath)) {
-          fs.unlinkSync(reportPath);
-          console.log(`Reporte ${reportPath} eliminado.`);
-        }
-        res.status(200).json({ message: 'Reporte eliminado.' });
-      }
-    } catch (error) {
-      console.error('Error al generar el reporte:', error.message);
-      res.status(500).json({ error: 'Error al generar el reporte.', details: error.message });
     }
   }
 };
 
-module.exports = prestamosController;
+module.exports = inventarioController;
