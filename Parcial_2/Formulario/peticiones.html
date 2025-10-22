@@ -1,0 +1,473 @@
+```html
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Escuela - Sistema de Préstamos</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            color: #333;
+        }
+        .header {
+            background-color: #2e7d32;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-bottom: 5px solid #6d4c41;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 2.5em;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        }
+        .form-section, .tables-section {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            border-left: 5px solid #2e7d32;
+        }
+        .form-section h2, .tables-section h2 {
+            color: #6d4c41;
+            font-weight: bold;
+            border-bottom: 2px solid #2e7d32;
+            padding-bottom: 10px;
+        }
+        .table-container {
+            margin-top: 20px;
+        }
+        .btn-primary {
+            background-color: #2e7d32;
+            border-color: #2e7d32;
+        }
+        .btn-primary:hover {
+            background-color: #1b5e20;
+            border-color: #1b5e20;
+        }
+        .btn-danger {
+            background-color: #d32f2f;
+            border-color: #d32f2f;
+        }
+        .btn-danger:hover {
+            background-color: #b71c1c;
+            border-color: #b71c1c;
+        }
+        .btn-increment, .btn-decrement {
+            width: 40px;
+            padding: 0;
+            font-size: 1rem;
+        }
+        #errorMessage, #formErrorMessage, #inventoryErrorMessage {
+            display: none;
+            color: #d32f2f;
+            text-align: center;
+            margin-top: 10px;
+        }
+        tr:hover {
+            cursor: pointer;
+            background-color: #f0f0f0;
+        }
+        .no-data-message {
+            text-align: center;
+            color: #6d4c41;
+            padding: 10px;
+        }
+        .unreturned-loan {
+            background-color: #ff0000; /* Solid red background for unreturned loans */
+        }
+        @media (max-width: 768px) {
+            .form-group {
+                margin-bottom: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Escuela - Sistema de Préstamos</h1>
+        <p class="lead">Gestión eficiente de préstamos de inventario escolar</p>
+    </div>
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-section">
+                    <h2>Registro de Préstamo</h2>
+                    <form id="prestamoForm">
+                        <!-- Alumno -->
+                        <h3>Datos del Alumno</h3>
+                        <div class="row">
+                            <div class="col-md-12 mb-3">
+                                <label for="alumno_num_control" class="form-label">Número de Control:</label>
+                                <input type="text" class="form-control" id="alumno_num_control" name="alumno_num_control" required>
+                            </div>
+                        </div>
+
+                        <!-- Item -->
+                        <h3 class="mt-4">Datos del Item</h3>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="item_nombre" class="form-label">Nombre del Item:</label>
+                                <input type="text" class="form-control" id="item_nombre" name="item_nombre" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="item_descripcion" class="form-label">Descripción (opcional):</label>
+                                <input type="text" class="form-control" id="item_descripcion" name="item_descripcion">
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">Registrar Préstamo</button>
+                    </form>
+                    <p id="formErrorMessage"></p>
+
+                    <h2 class="mt-4">Gestión de Inventario</h2>
+                    <form id="inventoryForm">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="inventory_item" class="form-label">Nombre del Item:</label>
+                                <input type="text" class="form-control" id="inventory_item" name="inventory_item" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="inventory_descripcion" class="form-label">Descripción (opcional):</label>
+                                <input type="text" class="form-control" id="inventory_descripcion" name="inventory_descripcion">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="inventory_action" class="form-label">Acción:</label>
+                                <select class="form-control" id="inventory_action" name="inventory_action" required>
+                                    <option value="add">Agregar Nuevo Item</option>
+                                    <option value="increase">Aumentar Cantidad</option>
+                                    <option value="decrease">Disminuir Cantidad</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="inventory_quantity" class="form-label">Cantidad:</label>
+                                <div class="input-group">
+                                    <button type="button" class="btn btn-decrement" onclick="decreaseQuantity()">-</button>
+                                    <input type="number" class="form-control text-center" id="inventory_quantity" name="inventory_quantity" value="1" min="1" required>
+                                    <button type="button" class="btn btn-increment" onclick="increaseQuantity()">+</button>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Actualizar Inventario</button>
+                    </form>
+                    <p id="inventoryErrorMessage"></p>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="tables-section">
+                    <h2>Tabla de Préstamos</h2>
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control" id="searchNumControl" placeholder="Buscar por Número de Control (opcional)">
+                        <button class="btn btn-primary" type="button" onclick="searchPrestamos()">Buscar</button>
+                    </div>
+                    <div class="table-container">
+                        <table class="table table-striped" id="prestamosTable">
+                            <thead>
+                                <tr>
+                                    <th>ID Préstamo</th>
+                                    <th>No. Control</th>
+                                    <th>Item</th>
+                                    <th>Fecha Préstamo</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                    <h2>Tabla de Inventario</h2>
+                    <div class="table-container">
+                        <table class="table table-striped" id="inventarioTable">
+                            <thead>
+                                <tr>
+                                    <th>ID Item</th>
+                                    <th>Nombre</th>
+                                    <th>Cantidad Disponible</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                    <p id="errorMessage"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const BASE_URL = 'http://localhost:8082';
+
+        document.getElementById('prestamoForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formErrorMessage = document.getElementById('formErrorMessage');
+            formErrorMessage.style.display = 'none';
+            formErrorMessage.textContent = '';
+
+            const formData = {
+                alumno_num_control: document.getElementById('alumno_num_control').value,
+                item_nombre: document.getElementById('item_nombre').value,
+                item_descripcion: document.getElementById('item_descripcion').value
+            };
+
+            try {
+                // Registrar alumno
+                const alumnoResponse = await fetch(`${BASE_URL}/alumnos`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ num_control: formData.alumno_num_control })
+                });
+                if (!alumnoResponse.ok) {
+                    const errorData = await alumnoResponse.json();
+                    throw new Error(errorData.error || 'Error al procesar alumno.');
+                }
+                const alumnoResult = await alumnoResponse.json();
+                const id_alumno = alumnoResult.id_alumno;
+
+                // Registrar item con cantidad inicial (1)
+                const itemResponse = await fetch(`${BASE_URL}/inventario`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        nombre_item: formData.item_nombre,
+                        descripcion: formData.item_descripcion,
+                        cantidad_disponible: 1 // Inicializamos con 1 unidad
+                    })
+                });
+                if (!itemResponse.ok) {
+                    const errorData = await itemResponse.json();
+                    console.log('Server error response:', errorData); // Debug log
+                    throw new Error(errorData.error || 'Error al registrar item.');
+                }
+                const itemResult = await itemResponse.json();
+                const id_item = itemResult.id_item;
+
+                // Registrar préstamo
+                const prestamoResponse = await fetch(`${BASE_URL}/prestamos`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id_alumno, id_item })
+                });
+                if (!prestamoResponse.ok) {
+                    const errorData = await prestamoResponse.json();
+                    console.log('Server error response:', errorData); // Debug log
+                    throw new Error(errorData.error || 'Error al registrar préstamo.');
+                }
+                const prestamoResult = await prestamoResponse.json();
+                alert(`Préstamo registrado con éxito. ID: ${prestamoResult.id_prestamo}`);
+                loadPrestamos();
+                loadInventario();
+                document.getElementById('prestamoForm').reset();
+            } catch (error) {
+                formErrorMessage.style.display = 'block';
+                formErrorMessage.textContent = error.message;
+                console.error('Error en registro de préstamo:', error);
+            }
+        });
+
+        document.getElementById('inventoryForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const inventoryErrorMessage = document.getElementById('inventoryErrorMessage');
+            inventoryErrorMessage.style.display = 'none';
+            inventoryErrorMessage.textContent = '';
+
+            const formData = {
+                item_nombre: document.getElementById('inventory_item').value,
+                descripcion: document.getElementById('inventory_descripcion').value,
+                quantity: parseInt(document.getElementById('inventory_quantity').value),
+                action: document.getElementById('inventory_action').value
+            };
+
+            try {
+                let response;
+                if (formData.action === 'add') {
+                    response = await fetch(`${BASE_URL}/inventario`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            nombre_item: formData.item_nombre,
+                            descripcion: formData.descripcion,
+                            cantidad_disponible: formData.quantity
+                        })
+                    });
+                } else {
+                    const [existingItem] = await fetch(`${BASE_URL}/inventario`).then(res => res.json()).then(data => data.find(item => item.nombre_item === formData.item_nombre));
+                    if (!existingItem) throw new Error('Item no encontrado.');
+                    const id_item = existingItem.id_item;
+                    const newQuantity = existingItem.cantidad_disponible + (formData.action === 'increase' ? formData.quantity : -formData.quantity);
+                    if (newQuantity < 0) throw new Error('Cantidad no puede ser negativa.');
+                    response = await fetch(`${BASE_URL}/inventario/${id_item}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            nombre_item: formData.item_nombre,
+                            descripcion: formData.descripcion,
+                            cantidad_disponible: newQuantity
+                        })
+                    });
+                }
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    console.log('Server error response:', errorData); // Debug log
+                    throw new Error(errorData.error || 'Error al actualizar inventario.');
+                }
+                alert(`Inventario actualizado con éxito: ${formData.action === 'add' ? 'Item agregado' : formData.action === 'increase' ? 'Cantidad aumentada' : 'Cantidad disminuida'}`);
+                loadInventario();
+                document.getElementById('inventoryForm').reset();
+                document.getElementById('inventory_quantity').value = 1;
+            } catch (error) {
+                inventoryErrorMessage.style.display = 'block';
+                inventoryErrorMessage.textContent = error.message;
+                console.error('Error en gestión de inventario:', error);
+            }
+        });
+
+        function increaseQuantity() {
+            const input = document.getElementById('inventory_quantity');
+            let value = parseInt(input.value);
+            input.value = value + 1;
+        }
+
+        function decreaseQuantity() {
+            const input = document.getElementById('inventory_quantity');
+            let value = parseInt(input.value);
+            if (value > 1) input.value = value - 1;
+        }
+
+        async function loadPrestamos(num_control = '') {
+            const errorMessage = document.getElementById('errorMessage');
+            errorMessage.style.display = 'none';
+            errorMessage.textContent = '';
+            console.log('Iniciando fetch a:', `${BASE_URL}/prestamos${num_control ? `?num_control=${num_control}` : ''}`);
+            try {
+                const response = await fetch(`${BASE_URL}/prestamos${num_control ? `?num_control=${num_control}` : ''}`);
+                console.log('Response status:', response.status, 'Headers:', response.headers.get('content-type'));
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('Error response body:', errorText);
+                    throw new Error(`Error: ${response.status} - ${errorText}`);
+                }
+                const prestamos = await response.json();
+                console.log('Datos recibidos:', prestamos);
+                const tbody = document.querySelector('#prestamosTable tbody');
+                tbody.innerHTML = '';
+                if (prestamos.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" class="no-data-message">No hay préstamos</td></tr>';
+                } else {
+                    prestamos.forEach(prestamo => {
+                        const row = document.createElement('tr');
+                        row.className = prestamo.estado === 'activo' ? 'unreturned-loan' : '';
+                        row.innerHTML = `
+                            <td>${prestamo.id_prestamo}</td>
+                            <td>${prestamo.num_control}</td>
+                            <td>${prestamo.nombre_item}</td>
+                            <td>${new Date(prestamo.fecha_prestamo).toLocaleString()}</td>
+                            <td>${prestamo.estado}</td>
+                            <td>
+                                ${prestamo.estado === 'activo' ? `<button class="btn btn-danger btn-sm" onclick="returnItem(${prestamo.id_prestamo})">Marcar como Devuelto</button>` : ''}
+                                <button class="btn btn-info btn-sm" onclick="generateReport(${prestamo.id_prestamo})">Reporte</button>
+                            </td>
+                        `;
+                        row.addEventListener('click', () => generateReport(prestamo.id_prestamo));
+                        tbody.appendChild(row);
+                    });
+                }
+            } catch (error) {
+                errorMessage.style.display = 'block';
+                errorMessage.textContent = `Error al cargar préstamos: ${error.message}`;
+                console.error('Error completo:', error);
+            }
+        }
+
+        async function loadInventario() {
+            const errorMessage = document.getElementById('errorMessage');
+            errorMessage.style.display = 'none';
+            errorMessage.textContent = '';
+            console.log('Iniciando fetch a:', `${BASE_URL}/inventario`);
+            try {
+                const response = await fetch(`${BASE_URL}/inventario`);
+                console.log('Response status:', response.status);
+                if (!response.ok) throw new Error(`Error: ${response.status}`);
+                const inventario = await response.json();
+                const tbody = document.querySelector('#inventarioTable tbody');
+                tbody.innerHTML = '';
+                if (inventario.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="3" class="no-data-message">No hay inventario disponible</td></tr>';
+                } else {
+                    inventario.forEach(item => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${item.id_item}</td>
+                            <td>${item.nombre_item}</td>
+                            <td>${item.cantidad_disponible}</td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+                }
+            } catch (error) {
+                errorMessage.style.display = 'block';
+                errorMessage.textContent = `Error al cargar inventario: ${error.message}`;
+                console.error('Error completo:', error);
+            }
+        }
+
+        async function searchPrestamos() {
+            const num_control = document.getElementById('searchNumControl').value;
+            await loadPrestamos(num_control);
+        }
+
+        async function returnItem(id_prestamo) {
+            try {
+                const response = await fetch(`${BASE_URL}/prestamos/return/${id_prestamo}`, { method: 'PUT' });
+                if (!response.ok) throw new Error('Error al marcar como devuelto.');
+                alert('Item marcado como devuelto con éxito.');
+                loadPrestamos();
+                loadInventario();
+            } catch (error) {
+                alert(`Error: ${error.message}`);
+                console.error('Error al devolver item:', error);
+            }
+        }
+
+        async function generateReport(id_prestamo) {
+            try {
+                const response = await fetch(`${BASE_URL}/prestamos/report?id_prestamo=${id_prestamo}`);
+                if (!response.ok) throw new Error('Error al generar reporte.');
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const newWindow = window.open(url, '_blank');
+                if (newWindow) {
+                    newWindow.addEventListener('unload', () => {
+                        fetch(`${BASE_URL}/prestamos/report?id_prestamo=${id_prestamo}&delete=true`, {
+                            method: 'DELETE'
+                        }).catch(err => console.error('Error al eliminar reporte:', err));
+                        window.URL.revokeObjectURL(url);
+                    });
+                } else {
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `prestamo-${id_prestamo}.txt`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    window.URL.revokeObjectURL(url);
+                }
+            } catch (error) {
+                alert(`Error: ${error.message}`);
+                console.error('Error al generar reporte:', error);
+            }
+        }
+
+        // Cargar datos iniciales
+        loadPrestamos();
+        loadInventario();
+    </script>
+</body>
+</html>
