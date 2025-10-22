@@ -4,7 +4,6 @@ const morgan = require('morgan');
 const fs = require('fs');
 const path = require('path');
 
-// Import error handler
 const { handleGlobalError } = require('./ManejadorErrores/ManErrores');
 
 const app = express();
@@ -25,9 +24,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // rutas generales
 try {
-  const alumnosRouter = require('./routes/alumnos');
-  const inventarioRouter = require('./routes/inventario');
-  const prestamosRouter = require('./routes/prestamos');
+  const alumnosRouter = require('./rutas/alumnos');
+  const inventarioRouter = require('./rutas/inventario');
+  const prestamosRouter = require('./rutas/prestamos');
   app.use('/alumnos', alumnosRouter.router);
   app.use('/inventario', inventarioRouter.router);
   app.use('/prestamos', prestamosRouter.router);

@@ -185,3 +185,9 @@
 [0mGET /inventario [36m304[0m 4.560 ms - -[0m
 [0mGET /prestamos [36m304[0m 3.331 ms - -[0m
 [0mGET /inventario [36m304[0m 7.857 ms - -[0m
+[0mGET /prestamos?num_control=A001 [32m200[0m 426.463 ms - 173[0m
+[0mPOST /alumnos [33m400[0m 8.467 ms - 159[0m
+[0mPOST /alumnos [33m400[0m 1.656 ms - 159[0m
+[0mPOST /alumnos [33m400[0m 11.810 ms - 159[0m
+[0mPOST /alumnos [32m201[0m 424.376 ms - 70[0m
+[0mPOST /alumnos [33m400[0m 1.459 ms - 159[0m
