@@ -1,7 +1,7 @@
 const mysql = require('mysql2/promise');
 const { check, validationResult } = require('express-validator');
 
-// Import error handler
+
 const { sendErrorResponse, logError } = require('../ManejadorErrores/ManErrores');
 
 const db = mysql.createPool({
@@ -10,6 +10,7 @@ const db = mysql.createPool({
   password: '',
   database: 'Escuela',
   port: 3306,
+   charset: 'utf8mb4',
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0

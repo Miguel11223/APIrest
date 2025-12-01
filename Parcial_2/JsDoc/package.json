@@ -5,13 +5,14 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "doc": "jsdoc -c jsdoc.json" 
+    "doc": "jsdoc -c jsdoc.json --readme ./README.MD" 
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "clean-jsdoc-theme": "^4.3.0",
     "jsdoc": "^4.0.5"
   }
 }

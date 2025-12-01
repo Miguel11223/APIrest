@@ -1,3 +1,6 @@
 [2025-10-17T00:18:57.018Z] Error al registrar usuario:: Unknown column 'password_hash' in 'field list'
 [2025-10-17T00:19:16.351Z] Error al registrar usuario:: Unknown column 'password_hash' in 'field list'
 [2025-10-17T00:20:48.971Z] Error al registrar usuario:: Unknown column 'salt' in 'field list'
+[2025-10-28T00:59:28.012Z] Error al conectar a la base de datos (Alumnos):: 
+[2025-11-19T14:03:54.324Z] Error al conectar a la base de datos (Alumnos):: 
+[2025-11-19T14:12:55.119Z] Error al conectar a la base de datos (Alumnos):: 
