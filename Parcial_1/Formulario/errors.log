@@ -4,3 +4,10 @@
 [2025-10-28T00:59:28.012Z] Error al conectar a la base de datos (Alumnos):: 
 [2025-11-19T14:03:54.324Z] Error al conectar a la base de datos (Alumnos):: 
 [2025-11-19T14:12:55.119Z] Error al conectar a la base de datos (Alumnos):: 
+[2025-12-01T13:20:06.362Z] Error al conectar a la base de datos (Alumnos):: 
+[2025-12-01T14:14:41.041Z] Error al conectar a la base de datos (Alumnos):: Encoding not recognized: 'cesu8' (searched as: 'cesu8')
+[2025-12-01T14:18:39.206Z] Error en register:: El usuario ya existe
+[2025-12-01T14:21:12.931Z] Error en register:: El usuario ya existe
+[2025-12-01T14:21:19.513Z] Error al conectar a la base de datos (Alumnos):: Encoding not recognized: 'cesu8' (searched as: 'cesu8')
+[2025-12-01T14:29:33.387Z] Error en register:: El usuario ya existe
+[2025-12-01T14:29:39.445Z] Error al conectar a la base de datos (Alumnos):: Encoding not recognized: 'cesu8' (searched as: 'cesu8')

@@ -12,6 +12,7 @@ const db = mysql.createPool({
   password: '',
   database: 'Escuela',
   port: 3306,
+   charset: 'utf8mb4',
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0
